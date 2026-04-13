@@ -45,14 +45,24 @@ export default function LoginPage() {
           </div>
           <div className="form-group">
             <label htmlFor="password">Password</label>
-            <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+            <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="any password" />
           </div>
           <button type="submit" className="btn btn-primary" style={{ width: '100%' }} disabled={loading}>
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
+        <div style={{ marginTop: '16px', padding: '12px', background: '#f0f9ff', borderRadius: '6px', fontSize: '13px', color: '#666' }}>
+          <p style={{ fontWeight: 600, marginBottom: '4px' }}>Prototype Accounts:</p>
+          <p><code style={{ background: '#e0f2fe', padding: '1px 5px', borderRadius: '3px', color: '#0078AE' }}>admin@saws.org</code> - Admin (approve contracts)</p>
+          <p><code style={{ background: '#e0f2fe', padding: '1px 5px', borderRadius: '3px', color: '#0078AE' }}>user@saws.org</code> - SAWS employee</p>
+          <p><code style={{ background: '#e0f2fe', padding: '1px 5px', borderRadius: '3px', color: '#0078AE' }}>vendor@example.com</code> - External vendor</p>
+          <p style={{ marginTop: '4px', fontStyle: 'italic' }}>Any password works</p>
+        </div>
         <p className="auth-link">
           Need a fire hydrant meter? <Link to="/apply">Apply here</Link>
+        </p>
+        <p className="auth-link" style={{ marginTop: '8px' }}>
+          <a href="http://localhost:3000" style={{ color: '#0078AE' }}>&#9664; Back to EZ Link Portal</a>
         </p>
       </div>
     </div>

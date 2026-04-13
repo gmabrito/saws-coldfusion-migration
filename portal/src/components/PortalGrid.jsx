@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 const APP_TILES = [
   {
     id: 'my-profile',
@@ -164,27 +166,32 @@ const APP_TILES = [
 ];
 
 export default function PortalGrid({ user }) {
+  const [selectedApp, setSelectedApp] = useState(null);
+
   const visibleApps = APP_TILES.filter((app) => {
     if (app.adminOnly && !user.roles.includes('admin')) return false;
     if (user.apps === 'all') return true;
     return user.apps.includes(app.id);
   });
 
+  // Modules that are running and can be opened directly
+  const RUNNING_MODULES = {
+    'fire-hydrant-meter': 'http://localhost:3100',
+  };
+
   const handleTileClick = (app) => {
-    if (!app.module) {
-      alert(`"${app.name.replace('\n', ' ')}" is a legacy app not covered by the current BRDs.\n\nThis tile exists in the original EZ Link portal but has no migration prototype yet.`);
+    const runningUrl = RUNNING_MODULES[app.id];
+    if (runningUrl) {
+      // Pass SSO token so the module auto-logs in
+      const token = localStorage.getItem('sso_token');
+      const url = token ? `${runningUrl}?sso_token=${token}` : runningUrl;
+      window.open(url, '_blank');
       return;
     }
-    // In a real deployment, each module would be served under a route prefix.
-    // For the prototype, show where the module lives.
-    const modulePath = app.path || '/';
-    alert(
-      `Module: ${app.module}\n` +
-      `Path: modules/${app.module}/brd/client/\n` +
-      `Run: cd modules/${app.module}/brd/client && npm run dev\n\n` +
-      `This would navigate to the ${app.name.replace('\n', ' ')} module.`
-    );
+    setSelectedApp(app);
   };
+
+  const closeModal = () => setSelectedApp(null);
 
   return (
     <main className="portal-grid-container">
@@ -207,6 +214,29 @@ export default function PortalGrid({ user }) {
           </button>
         ))}
       </div>
+
+      {selectedApp && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={closeModal}>&times;</button>
+            <div className="modal-icon">{selectedApp.icon}</div>
+            <h3>{selectedApp.name.replace('\n', ' ')}</h3>
+            <p className="modal-desc">{selectedApp.description}</p>
+            {selectedApp.module ? (
+              <div className="modal-info">
+                <div className="modal-field"><span className="modal-label">Module:</span> {selectedApp.module}</div>
+                <div className="modal-field"><span className="modal-label">Path:</span> modules/{selectedApp.module}/brd/client/</div>
+                <div className="modal-field"><span className="modal-label">Run:</span> <code>cd modules/{selectedApp.module}/brd/client && npm run dev</code></div>
+                <div className="modal-status prototype">Prototype Ready</div>
+              </div>
+            ) : (
+              <div className="modal-info">
+                <div className="modal-status legacy">Legacy app -- no BRD migration prototype yet</div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </main>
   );
 }
