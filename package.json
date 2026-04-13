@@ -1,0 +1,13 @@
+{
+  "name": "saws-coldfusion-migration",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ColdFusion migration bakeoff: BRD-driven vs code-driven approach comparison",
+  "workspaces": [
+    "shared/ui-shell",
+    "modules/*/brd/client",
+    "modules/*/brd/server",
+    "modules/*/code/client",
+    "modules/*/code/server"
+  ]
+}
