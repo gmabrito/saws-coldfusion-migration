@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState } from 'react';
 
 const AuthContext = createContext(null);
 
@@ -12,38 +12,41 @@ function parseJwt(token) {
   }
 }
 
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => {
-    const stored = localStorage.getItem('finance_user');
-    return stored ? JSON.parse(stored) : null;
-  });
+// Check for SSO token synchronously before first render
+function getInitialUser() {
+  // 1. Check localStorage first
+  const stored = localStorage.getItem('finance_user');
+  if (stored) return JSON.parse(stored);
 
-  // Check for SSO token from portal on initial load
-  useEffect(() => {
-    if (user) return; // already logged in
+  // 2. Check for SSO token in URL
+  const params = new URLSearchParams(window.location.search);
+  const ssoToken = params.get('sso_token');
 
-    const params = new URLSearchParams(window.location.search);
-    const ssoToken = params.get('sso_token');
+  if (ssoToken) {
+    const decoded = parseJwt(ssoToken);
+    if (decoded && decoded.email) {
+      const userData = {
+        uid: decoded.uid,
+        email: decoded.email,
+        contact_name: decoded.contact_name,
+        business_name: decoded.business_name,
+        roles: decoded.roles || [],
+      };
+      localStorage.setItem('finance_token', ssoToken);
+      localStorage.setItem('finance_user', JSON.stringify(userData));
 
-    if (ssoToken) {
-      const decoded = parseJwt(ssoToken);
-      if (decoded && decoded.email) {
-        const userData = {
-          uid: decoded.uid,
-          email: decoded.email,
-          contact_name: decoded.contact_name,
-          business_name: decoded.business_name,
-          roles: decoded.roles || [],
-        };
-        localStorage.setItem('finance_token', ssoToken);
-        localStorage.setItem('finance_user', JSON.stringify(userData));
-        setUser(userData);
+      // Clean the URL
+      window.history.replaceState({}, '', window.location.pathname);
 
-        // Clean the URL
-        window.history.replaceState({}, '', window.location.pathname);
-      }
+      return userData;
     }
-  }, []);
+  }
+
+  return null;
+}
+
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(getInitialUser);
 
   const login = (userData, token) => {
     localStorage.setItem('finance_token', token);
