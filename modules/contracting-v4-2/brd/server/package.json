@@ -1,0 +1,22 @@
+{
+  "name": "saws-contracting-v4-2-server",
+  "version": "1.0.0",
+  "description": "SAWS Contracting V4-2 - Solicitations Admin API",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-validator": "^7.2.1",
+    "jsonwebtoken": "^9.0.2",
+    "msnodesqlv8": "^5.1.9",
+    "mssql": "^11.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
