@@ -1,53 +1,43 @@
-import { createContext, useContext, useState, useCallback } from 'react';
-import { authService } from '../services/api';
+import { createContext, useContext, useState } from 'react';
 
 const AuthContext = createContext(null);
 
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => {
-    const stored = localStorage.getItem('user');
-    return stored ? JSON.parse(stored) : null;
-  });
+function parseJwt(token) {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(atob(base64));
+  } catch { return null; }
+}
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  const login = useCallback(async (username, password) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await authService.login(username, password);
-      const { token, user: userData } = response.data;
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(userData));
-      setUser(userData);
+function getInitialUser() {
+  const stored = localStorage.getItem('oncall_user');
+  if (stored) return JSON.parse(stored);
+  const params = new URLSearchParams(window.location.search);
+  const ssoToken = params.get('sso_token');
+  if (ssoToken) {
+    const decoded = parseJwt(ssoToken);
+    if (decoded && decoded.email) {
+      const userData = { uid: decoded.uid, email: decoded.email, contact_name: decoded.contact_name, business_name: decoded.business_name, roles: decoded.roles || [] };
+      localStorage.setItem('oncall_token', ssoToken);
+      localStorage.setItem('oncall_user', JSON.stringify(userData));
+      window.history.replaceState({}, '', window.location.pathname);
       return userData;
-    } catch (err) {
-      const message = err.response?.data?.error || 'Login failed. Please try again.';
-      setError(message);
-      throw new Error(message);
-    } finally {
-      setLoading(false);
     }
-  }, []);
+  }
+  return null;
+}
 
-  const logout = useCallback(() => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setUser(null);
-  }, []);
-
-  return (
-    <AuthContext.Provider value={{ user, login, logout, loading, error, setError }}>
-      {children}
-    </AuthContext.Provider>
-  );
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(getInitialUser);
+  const login = (userData, token) => { localStorage.setItem('oncall_token', token); localStorage.setItem('oncall_user', JSON.stringify(userData)); setUser(userData); };
+  const logout = () => { localStorage.removeItem('oncall_token'); localStorage.removeItem('oncall_user'); setUser(null); };
+  const isAdmin = user?.roles?.includes('ADMIN') || false;
+  return <AuthContext.Provider value={{ user, login, logout, isAdmin }}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
+  if (!context) throw new Error('useAuth must be used within AuthProvider');
   return context;
 }

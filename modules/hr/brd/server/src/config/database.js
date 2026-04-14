@@ -3,8 +3,8 @@ const sql = require('mssql');
 const dbConfig = {
   server: process.env.DB_SERVER || 'localhost',
   database: process.env.DB_DATABASE || 'SAWSMigration',
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
+  user: process.env.DB_USER || 'saws_dev',
+  password: process.env.DB_PASSWORD || 'SawsDev2026!',
   port: parseInt(process.env.DB_PORT, 10) || 1433,
   options: {
     encrypt: false,
@@ -27,3 +27,4 @@ async function getDb() {
 }
 
 module.exports = { sql, getDb };
+

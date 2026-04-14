@@ -68,6 +68,9 @@ export default function LoginPage() {
           manager / password - Dept Manager<br />
           user / password - Staff User (read-only)
         </div>
+        <p className="auth-link" style={{ marginTop: '8px' }}>
+          <a href="http://localhost:3000" style={{ color: '#0078AE' }}>&#9664; Back to EZ Link Portal</a>
+        </p>
       </div>
     </div>
   );

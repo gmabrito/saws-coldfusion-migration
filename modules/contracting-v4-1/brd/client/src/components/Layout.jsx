@@ -1,6 +1,8 @@
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 
+const PORTAL_URL = 'http://localhost:3000';
+
 const navItems = [
   { path: '/', label: 'Vendor Search' },
   { path: '/vendors/new', label: 'Add Vendor' }
@@ -13,13 +15,14 @@ export default function Layout() {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    window.location.href = PORTAL_URL;
   };
 
   return (
     <div className="app-container">
       <aside className="sidebar">
         <div className="sidebar-header">
+          <a href={PORTAL_URL} className="portal-back" title="Back to EZ Link Portal">&#9664; Portal</a>
           <div className="sidebar-brand">SAWS</div>
           <div className="sidebar-subtitle">EZ Link Portal</div>
         </div>

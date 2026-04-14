@@ -3,12 +3,16 @@ const express = require('express');
 const cors = require('cors');
 
 const jobsRoutes = require('./routes/jobs');
+const authRoutes = require('./routes/auth');
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3011;
 
 app.use(cors());
 app.use(express.json());
+
+// Auth
+app.use('/api/auth', authRoutes);
 
 // Routes
 app.use('/api/jobs', jobsRoutes);

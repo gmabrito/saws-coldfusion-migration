@@ -50,6 +50,9 @@ export default function LoginPage() {
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
+        <p className="auth-link" style={{ marginTop: '8px' }}>
+          <a href="http://localhost:3000" style={{ color: '#0078AE' }}>&#9664; Back to EZ Link Portal</a>
+        </p>
       </div>
     </div>
   );

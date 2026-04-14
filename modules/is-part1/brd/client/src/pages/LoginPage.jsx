@@ -63,6 +63,9 @@ export default function LoginPage() {
         <p style={{ marginTop: '16px', fontSize: '12px', color: 'var(--saws-text-light)', textAlign: 'center' }}>
           Demo: username "admin" or "employee", any password
         </p>
+        <p className="auth-link" style={{ marginTop: '8px' }}>
+          <a href="http://localhost:3000" style={{ color: '#0078AE' }}>&#9664; Back to EZ Link Portal</a>
+        </p>
       </div>
     </div>
   );

@@ -1,13 +1,15 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 
+const PORTAL_URL = 'http://localhost:3000';
+
 export default function Layout({ children }) {
   const { user, logout, isAdmin } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    window.location.href = PORTAL_URL;
   };
 
   return (
@@ -23,6 +25,7 @@ export default function Layout({ children }) {
         boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+          <a href={PORTAL_URL} className="portal-back" title="Back to EZ Link Portal">&#9664; Portal</a>
           <Link to="/" style={{ color: 'white', fontSize: '18px', fontWeight: 'bold', textDecoration: 'none' }}>
             SAWS - Emergency SMS Opt-in
           </Link>

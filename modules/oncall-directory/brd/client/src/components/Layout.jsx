@@ -1,13 +1,15 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 
+const PORTAL_URL = 'http://localhost:3000';
+
 export default function Layout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   function handleLogout() {
     logout();
-    navigate('/login');
+    window.location.href = PORTAL_URL;
   }
 
   const isAdmin = user?.role === 'admin' || user?.role === 'manager';
@@ -15,6 +17,7 @@ export default function Layout() {
   return (
     <div className="app-layout">
       <header className="app-header">
+        <a href={PORTAL_URL} className="portal-back" title="Back to EZ Link Portal">&#9664; Portal</a>
         <h1>SAWS On-Call Directory</h1>
         <div className="user-info">
           {user ? (

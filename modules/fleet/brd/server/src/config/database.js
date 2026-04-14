@@ -1,24 +1,30 @@
 const sql = require('mssql');
 
-const config = {
-  server: process.env.DB_SERVER,
-  database: process.env.DB_DATABASE,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  port: parseInt(process.env.DB_PORT) || 1433,
+const dbConfig = {
+  server: process.env.DB_SERVER || 'localhost',
+  database: process.env.DB_DATABASE || 'SAWSMigration',
+  user: process.env.DB_USER || 'saws_dev',
+  password: process.env.DB_PASSWORD || 'SawsDev2026!',
+  port: parseInt(process.env.DB_PORT, 10) || 1433,
   options: {
     encrypt: false,
-    trustServerCertificate: true
-  }
+    trustServerCertificate: true,
+  },
+  pool: { max: 10, min: 0, idleTimeoutMillis: 30000 },
 };
 
-let pool;
+const dbPool = new sql.ConnectionPool(dbConfig);
 
-async function getPool() {
-  if (!pool) {
-    pool = await sql.connect(config);
-  }
+let dbReady = dbPool.connect().catch((err) => {
+  console.warn('Database connection failed:', err.message);
+  return null;
+});
+
+async function getDb() {
+  const pool = await dbReady;
+  if (!pool) throw new Error('Database not connected');
   return pool;
 }
 
-module.exports = { sql, getPool };
+module.exports = { sql, getDb };
+

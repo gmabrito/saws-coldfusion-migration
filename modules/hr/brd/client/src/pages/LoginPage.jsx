@@ -54,6 +54,9 @@ export default function LoginPage() {
         <p style={{ textAlign: 'center', marginTop: 16, fontSize: 12, color: '#999' }}>
           Demo: admin@saws.org / user@saws.org (any password)
         </p>
+        <p className="auth-link" style={{ marginTop: '8px' }}>
+          <a href="http://localhost:3000" style={{ color: '#0078AE' }}>&#9664; Back to EZ Link Portal</a>
+        </p>
       </div>
     </div>
   );

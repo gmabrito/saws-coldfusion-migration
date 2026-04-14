@@ -80,6 +80,9 @@ export default function LoginPage() {
         <div className="alert alert-info" style={{ marginTop: 16, marginBottom: 0 }}>
           <strong>Dev credentials:</strong> admin/password, staff/password, viewer/password
         </div>
+        <p className="auth-link" style={{ marginTop: '8px' }}>
+          <a href="http://localhost:3000" style={{ color: '#0078AE' }}>&#9664; Back to EZ Link Portal</a>
+        </p>
       </div>
     </div>
   );
