@@ -218,7 +218,7 @@ if ($DeleteJunk) {
             $relPath = $file.FullName.Replace($SourceDir, '').TrimStart('\')
 
             if ($Apply) {
-                Remove-Item $file.FullName -Force
+                Remove-Item -LiteralPath $file.FullName -Force
                 Write-Host "  DELETED: $relPath ($sizeKB KB)" -ForegroundColor Red
             } else {
                 Write-Host "  WOULD DELETE: $relPath ($sizeKB KB)" -ForegroundColor DarkYellow
