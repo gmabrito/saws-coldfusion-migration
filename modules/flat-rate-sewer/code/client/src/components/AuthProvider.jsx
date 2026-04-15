@@ -53,10 +53,29 @@ function resolveInitialUser() {
 export function AuthProvider({ children }) {
   const [auth, setAuth] = useState(resolveInitialUser);
 
-  const login = useCallback((email, password) => {
+  const login = useCallback(async (email, password) => {
     const entry = MOCK_USERS[email?.toLowerCase()];
     if (!entry) return { success: false, error: 'User not found. Try: admin@saws.org, user@saws.org, or readonly@saws.org' };
-    // Any password works in prototype mode
+
+    // Get a real JWT from the server API
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: email, password: password || 'dev' }),
+      });
+      const result = await res.json();
+      if (res.ok && result.access_token) {
+        const data = { user: result.user, token: result.access_token };
+        sessionStorage.setItem('frs_auth', JSON.stringify(data));
+        setAuth(data);
+        return { success: true };
+      }
+    } catch (err) {
+      console.warn('Server auth failed, using local mock:', err.message);
+    }
+
+    // Fallback: local mock if server is down
     const { password: _pw, ...claims } = entry;
     const data = { user: claims, token: `mock-jwt-${claims.oid}` };
     sessionStorage.setItem('frs_auth', JSON.stringify(data));

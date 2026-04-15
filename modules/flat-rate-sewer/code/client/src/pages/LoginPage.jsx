@@ -37,10 +37,10 @@ export default function LoginPage() {
     );
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    const result = login(email, password);
+    const result = await login(email, password);
     if (result.success) {
       navigate(from, { replace: true });
     } else {
@@ -48,8 +48,9 @@ export default function LoginPage() {
     }
   };
 
-  const quickLogin = (addr) => {
-    const result = login(addr, 'auto');
+  const quickLogin = async (addr) => {
+    setError('');
+    const result = await login(addr, 'auto');
     if (result.success) {
       navigate(from, { replace: true });
     } else {
