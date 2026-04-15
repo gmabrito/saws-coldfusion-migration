@@ -55,8 +55,8 @@ export function AuthProvider({ children }) {
 
   const login = useCallback((email, password) => {
     const entry = MOCK_USERS[email?.toLowerCase()];
-    if (!entry) return { success: false, error: 'User not found' };
-    if (entry.password !== password) return { success: false, error: 'Invalid password' };
+    if (!entry) return { success: false, error: 'User not found. Try: admin@saws.org, user@saws.org, or readonly@saws.org' };
+    // Any password works in prototype mode
     const { password: _pw, ...claims } = entry;
     const data = { user: claims, token: `mock-jwt-${claims.oid}` };
     sessionStorage.setItem('frs_auth', JSON.stringify(data));
