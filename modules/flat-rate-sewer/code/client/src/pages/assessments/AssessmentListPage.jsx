@@ -15,8 +15,9 @@ export default function AssessmentListPage() {
       const params = { page, limit: 20 };
       if (filter !== 'all') params.status = filter;
       const res = await assessmentService.getAll(params);
-      setAssessments(res.data.assessments || res.data || []);
-      setTotal(res.data.total || 0);
+      const body = res.data;
+      setAssessments(body.data || body.assessments || (Array.isArray(body) ? body : []));
+      setTotal(body.pagination?.total || body.total || 0);
     } catch {
       setAssessments([
         { assessment_id: 1001, account_num: '100234', business_name: 'Downtown Car Wash', billing_date: '2026-03-01', billed_amount: 1245.50, actual_amount: 1102.30, difference: -143.20, status: 'COMPLETED' },

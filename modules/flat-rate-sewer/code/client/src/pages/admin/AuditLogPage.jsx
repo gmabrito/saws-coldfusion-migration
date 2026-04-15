@@ -34,8 +34,9 @@ export default function AuditLogPage() {
       if (filters.dateTo) params.date_to = filters.dateTo;
 
       const res = await reportService.getEvents(params);
-      setEvents(res.data.events || res.data || []);
-      setTotal(res.data.total || 0);
+      const body = res.data;
+      setEvents(body.data || body.events || (Array.isArray(body) ? body : []));
+      setTotal(body.pagination?.total || body.total || 0);
     } catch {
       setEvents([
         { event_id: 1, timestamp: '2026-04-15T10:30:00Z', event_type: 'LOGIN', user_email: 'admin@saws.org', account_num: null, details: 'User login successful' },

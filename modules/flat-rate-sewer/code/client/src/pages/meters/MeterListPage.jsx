@@ -34,7 +34,8 @@ export default function MeterListPage() {
     setLoading(true);
     try {
       const res = await meterService.getByAccount(accountNum);
-      setMeters(res.data.meters || res.data || []);
+      const body = res.data;
+      setMeters(body.data || body.meters || (Array.isArray(body) ? body : []));
     } catch {
       setMeters([
         { meter_id: 1, serial_number: 'MTR-001', size: '2"', meter_function: 'INCOMING', uom: 'GAL', max_reading: 999999, status: 'ACTIVE' },
