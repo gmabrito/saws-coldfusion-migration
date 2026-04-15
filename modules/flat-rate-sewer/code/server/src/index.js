@@ -25,6 +25,7 @@ app.use('/api/readings', require('./routes/readings'));
 app.use('/api/assessments', require('./routes/assessments'));
 app.use('/api/rates', require('./routes/rates'));
 app.use('/api/reports', require('./routes/reports'));
+app.use('/api/events', require('./routes/eventStream'));
 
 // Health check
 app.get('/api/health', (req, res) =>
