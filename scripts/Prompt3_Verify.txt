@@ -1,0 +1,17 @@
+I just sanitized source code files to remove sensitive data before sharing with AI tools. Please verify that ALL sensitive data has been properly replaced.
+
+Scan every file in the folder I reference and confirm:
+
+1. No real person names remain. Only these fake names should appear: Alex Thompson, Jordan Rivera, Casey Williams, Pat Morgan, Sam Chen, or similar obviously fake names.
+2. No real account numbers remain. Only 000099xxx patterns should appear.
+3. No real email addresses remain. Only @example.com addresses should appear.
+4. No passwords or API keys remain. Only P@ssw0rd_DEV or FAKE-API-KEY should appear.
+5. No internal server names remain. Only localhost or devserver should appear.
+6. No real dollar amounts remain in comments or display strings.
+7. No real physical addresses remain. Only Test Street or Sample Blvd addresses should appear.
+8. No real phone numbers remain. Only 210-555-xxxx should appear.
+9. No real employee IDs remain. Only 990xxxx pattern should appear.
+
+For any findings that STILL contain real data, list them with the file name, the value that needs to be fixed, and what it should be replaced with.
+
+If everything is clean, confirm with SANITIZATION VERIFIED and list the total number of files scanned.

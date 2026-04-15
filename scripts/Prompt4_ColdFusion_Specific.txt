@@ -1,0 +1,30 @@
+This folder contains ColdFusion source code files with .cfm and .cfc extensions being prepared for AI-assisted migration to a modern platform. Sanitize the content while preserving all ColdFusion-specific code patterns.
+
+Find and report all instances of:
+
+1. Real data inside cfquery tags where values are hardcoded in SQL statements rather than using cfqueryparam
+2. Real names or accounts inside cfoutput display blocks
+3. Connection details inside cfdatasource or Application.cfc datasource configurations
+4. Real email addresses inside cfmail to or from attributes
+5. Real file paths inside cffile or cfdirectory operations
+6. Real URLs inside cflocation or cfhttp tags
+7. Session variables storing real PII like SESSION.employee_name or SESSION.emp_id with real values in comments or defaults
+8. Comments containing real employee names, system details, or change history with real names
+9. Hardcoded test data with real account numbers or customer names
+10. Database server names or connection strings in any configuration
+
+For each finding provide:
+FileName, LineNumber, FoundValue, DataType, SuggestedReplacement
+
+DO NOT change or flag:
+cfcomponent, cffunction, cfargument structure
+cfquery SQL logic and parameterized parts
+cfgrid, cfwindow, cflayout UI component names
+JavaScript or ExtJS code patterns
+Business logic and calculation formulas
+Variable names and function names
+Application.cfc settings other than credentials
+Error handling patterns
+SQL table names or column names
+
+Export results as CSV.

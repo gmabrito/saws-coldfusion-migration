@@ -1,0 +1,18 @@
+Review all files in the folder I reference and identify files that should be DELETED entirely before sharing with AI tools. These are files that contain only sensitive data and no useful code logic.
+
+Categories of files to flag for deletion:
+
+1. Generated reports: PDF files, generated HTML reports, exported CSV or Excel files containing real customer or billing data
+2. Log files: Any .log files or audit trail files with real activity records
+3. Backup copies: Files ending in _backup, _old, _copy, or with date stamps like _20250805 that are just duplicates of other source files
+4. Test data files: JSON, XML, CSV, or SQL files that contain only real test data with real account numbers or names and no code logic
+5. Binary files: Compiled .class files, .dll files, or other binaries that cannot be meaningfully reviewed
+6. Configuration files with credentials: .env files, web.xml files, or config files that contain only connection strings and passwords with no code logic worth preserving
+7. Cache files: Temporary files, session files, or cached data
+
+For each file flagged, provide:
+FileName, Category, Reason, SafeToDelete (YES or REVIEW)
+
+Mark as REVIEW instead of YES if the file might contain some useful code mixed with sensitive data.
+
+Do NOT flag source code files (.cfm, .cfc, .js, .css, .sql) that contain real code logic even if they also have some PII. Those should be sanitized, not deleted.

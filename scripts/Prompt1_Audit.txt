@@ -1,0 +1,38 @@
+I need you to review source code files that are being prepared for AI-assisted code migration. These files may contain real customer data, employee information, and internal infrastructure details that must be removed before the code can be shared with external AI tools.
+
+Review all files in the folder I reference and create a table with these columns:
+
+FileName - the source file name
+LineNumber - approximate line number where the data appears
+FoundValue - the exact sensitive value found, copy it verbatim
+DataType - categorize as one of: CREDENTIAL, PERSON_NAME, ACCOUNT_NUMBER, EMPLOYEE_ID, EMAIL, ADDRESS, PHONE, FINANCIAL, SERVER_NAME, INTERNAL_URL
+RiskLevel - HIGH, MEDIUM, or LOW
+SuggestedReplacement - a realistic but fake replacement value
+Context - brief description of where it appears
+
+Risk levels:
+HIGH = passwords, API keys, tokens, connection strings, SSNs
+MEDIUM = real person names, account numbers, financial amounts, addresses, emails
+LOW = internal URLs without credentials, employee IDs in comments
+
+Replacement rules:
+Names should become Alex Thompson, Jordan Rivera, Casey Williams, Pat Morgan, or Sam Chen
+Account numbers should keep the same format but use 0009xxxx pattern
+Employee IDs should become 9900001, 9900002, 9900003
+Emails should become testuser@example.com or admin@example.com
+Addresses should become 100 Test Street, San Antonio TX 78201
+Phone numbers should become 210-555-0100
+Dollar amounts should be rounded to the nearest 1000
+Passwords should become P@ssw0rd_DEV
+Server names should become localhost or devserver
+Internal URLs should become https://internal/app/path
+
+Scanning rules:
+DO scan string literals, comments, hardcoded values, email tags, connection strings, session variables, query hardcoded values
+DO NOT flag variable names, function names, SQL column names, tag names, table names, or framework code
+DO NOT flag obviously fake or placeholder data like test@test.com
+DO flag all real organizational email addresses
+DO flag all account number patterns with 9 or more digits
+DO flag dollar amounts over 100 that appear in comments or display strings but not in code logic like if amount greater than 100
+
+Export the results as a CSV file. At the end, also list any files that should be DELETED entirely such as generated reports, log files, backup copies, or files containing only test data with real PII.

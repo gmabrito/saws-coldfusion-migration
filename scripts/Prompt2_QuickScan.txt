@@ -1,0 +1,19 @@
+Quickly scan all source code files in the folder I reference for sensitive data. Focus only on HIGH and MEDIUM risk items.
+
+HIGH risk: passwords, API keys, database credentials, SSNs, tokens
+MEDIUM risk: real person names, account numbers, email addresses, financial amounts, physical addresses, phone numbers
+
+For each finding give me the file name, the exact sensitive value found, what type of data it is, and what I should replace it with.
+
+Use these replacements:
+Names: Alex Thompson, Jordan Rivera, Casey Williams
+Account numbers: keep format but use 000099xxx pattern
+Emails: testuser@example.com
+Passwords: P@ssw0rd_DEV
+Server names: localhost
+Addresses: 100 Test Street, San Antonio TX 78201
+Dollar amounts: round to nearest 1000
+
+Format the output as a CSV with columns: FileName, FoundValue, DataType, RiskLevel, SuggestedReplacement
+
+Skip anything that is obviously fake data, variable names, function names, or SQL column names. Only flag real data in strings, comments, and hardcoded values.
