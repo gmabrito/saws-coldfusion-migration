@@ -1,8 +1,17 @@
 import axios from 'axios';
+import { normalizeKeys } from './normalize';
 
 const api = axios.create({
   baseURL: '/api',
   headers: { 'Content-Type': 'application/json' },
+});
+
+// Normalize PascalCase API responses to snake_case for UI consistency
+api.interceptors.response.use((res) => {
+  if (res.data && typeof res.data === 'object') {
+    res.data = normalizeKeys(res.data);
+  }
+  return res;
 });
 
 // JWT interceptor

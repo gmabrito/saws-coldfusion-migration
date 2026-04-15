@@ -21,8 +21,9 @@ export default function AccountListPage() {
       if (search) params.q = search;
       if (statusFilter !== 'all') params.status = statusFilter;
       const res = await accountService.getAll(params);
-      setAccounts(res.data.accounts || res.data || []);
-      setTotal(res.data.total || 0);
+      const body = res.data;
+      setAccounts(body.data || body.accounts || (Array.isArray(body) ? body : []));
+      setTotal(body.pagination?.total || body.total || (body.data?.length || 0));
     } catch {
       // Placeholder data
       setAccounts([
@@ -100,8 +101,8 @@ export default function AccountListPage() {
                     <td>{acct.business_name}</td>
                     <td>{acct.meter_size}</td>
                     <td>{acct.method}</td>
-                    <td><span className={`badge badge-${acct.status?.toLowerCase()}`}>{acct.status}</span></td>
-                    <td>{acct.next_assessment_date || '--'}</td>
+                    <td><span className={`badge badge-${(acct.status || '').toLowerCase()}`}>{acct.status}</span></td>
+                    <td>{acct.next_assessment_date ? new Date(acct.next_assessment_date).toLocaleDateString() : '--'}</td>
                   </tr>
                 ))
               )}
