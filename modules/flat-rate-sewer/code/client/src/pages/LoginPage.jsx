@@ -48,9 +48,13 @@ export default function LoginPage() {
     }
   };
 
-  const quickLogin = (addr, pw) => {
-    setEmail(addr);
-    setPassword(pw);
+  const quickLogin = (addr) => {
+    const result = login(addr, 'auto');
+    if (result.success) {
+      navigate(from, { replace: true });
+    } else {
+      setError(result.error);
+    }
   };
 
   return (
@@ -79,8 +83,7 @@ export default function LoginPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password"
-              required
+              placeholder="any password"
             />
           </div>
           <button type="submit" className="btn btn-primary btn-lg" style={{ width: '100%' }}>
@@ -93,21 +96,21 @@ export default function LoginPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 4 }}>
             <button
               type="button"
-              onClick={() => quickLogin('admin@saws.org', 'admin')}
+              onClick={() => quickLogin('admin@saws.org')}
               style={{ background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', color: '#0078AE', padding: 0, fontSize: 12 }}
             >
               admin@saws.org / admin (Admin + User)
             </button>
             <button
               type="button"
-              onClick={() => quickLogin('user@saws.org', 'user')}
+              onClick={() => quickLogin('user@saws.org')}
               style={{ background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', color: '#0078AE', padding: 0, fontSize: 12 }}
             >
               user@saws.org / user (User)
             </button>
             <button
               type="button"
-              onClick={() => quickLogin('readonly@saws.org', 'readonly')}
+              onClick={() => quickLogin('readonly@saws.org')}
               style={{ background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', color: '#0078AE', padding: 0, fontSize: 12 }}
             >
               readonly@saws.org / readonly (Read Only)
