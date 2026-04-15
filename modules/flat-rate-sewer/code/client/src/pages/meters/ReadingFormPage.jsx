@@ -22,7 +22,8 @@ export default function ReadingFormPage() {
   async function loadAccounts() {
     try {
       const res = await accountService.getAll({ limit: 500 });
-      setAccounts(res.data.accounts || res.data || []);
+      const body = res.data;
+      setAccounts(body.data || body.accounts || (Array.isArray(body) ? body : []));
     } catch {
       setAccounts([
         { account_num: '100234', business_name: 'Downtown Car Wash' },
@@ -47,7 +48,9 @@ export default function ReadingFormPage() {
   async function loadMeters() {
     try {
       const res = await meterService.getByAccount(accountNum);
-      const active = (res.data.meters || res.data || []).filter((m) => m.status === 'ACTIVE');
+      const body = res.data;
+      const all = body.data || body.meters || (Array.isArray(body) ? body : []);
+      const active = all.filter((m) => m.is_active === true || m.is_active === 'true' || m.status === 'ACTIVE');
       setMeters(active);
       setSelectedMeter('');
     } catch {
@@ -60,8 +63,9 @@ export default function ReadingFormPage() {
 
   async function loadRecentReadings() {
     try {
-      const res = await readingService.getAll({ account_num: accountNum, limit: 10 });
-      setRecentReadings(res.data.readings || res.data || []);
+      const res = await readingService.getAll({ accountNum, limit: 10 });
+      const body = res.data;
+      setRecentReadings(body.data || body.readings || (Array.isArray(body) ? body : []));
     } catch {
       setRecentReadings([
         { reading_id: 1, meter_serial: 'MTR-001', reading_date: '2026-03-15', reading_value: 45230, consumption: 1200, consumption_ccf: 16.04 },
@@ -74,9 +78,9 @@ export default function ReadingFormPage() {
   // When meter changes, find previous reading
   useEffect(() => {
     if (selectedMeter) {
-      const meter = meters.find((m) => String(m.meter_id) === selectedMeter);
+      const meter = meters.find((m) => m.serial === selectedMeter);
       if (meter) {
-        const prev = recentReadings.find((r) => r.meter_serial === meter.serial_number);
+        const prev = recentReadings.find((r) => r.serial === meter.serial);
         setPreviousReading(prev || null);
       }
     } else {
@@ -104,10 +108,10 @@ export default function ReadingFormPage() {
     setSubmitting(true);
     try {
       await readingService.submit({
-        account_num: accountNum,
-        meter_id: parseInt(selectedMeter),
-        reading_date: readingDate,
-        reading_value: parseInt(readingValue),
+        accountNum: accountNum,
+        serial: selectedMeter,
+        readingDate: readingDate,
+        readingValue: parseInt(readingValue),
       });
       setSuccess('Reading submitted successfully');
       setReadingValue('');
@@ -148,8 +152,8 @@ export default function ReadingFormPage() {
               <select value={selectedMeter} onChange={(e) => setSelectedMeter(e.target.value)} required disabled={!accountNum}>
                 <option value="">-- Select Meter --</option>
                 {meters.map((m) => (
-                  <option key={m.meter_id} value={m.meter_id}>
-                    {m.serial_number} ({m.meter_function}, {m.size})
+                  <option key={m.meter_id || m.serial} value={m.serial}>
+                    {m.serial} ({m.function_type}, {m.meter_size})
                   </option>
                 ))}
               </select>
