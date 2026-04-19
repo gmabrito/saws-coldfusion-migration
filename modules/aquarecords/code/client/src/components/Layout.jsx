@@ -1,11 +1,12 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from './AuthProvider';
 
-const ADMIN_GROUPS = ['SAWS-Records-Admin'];
+// NOTE: Post-PoC — restore group-conditional admin nav once AD groups are
+// provisioned (SAWS-Records-Admin, SAWS-Records-Staff). During PoC all
+// authenticated users see all nav items.
 
 export default function Layout() {
-  const { user, hasAnyGroup } = useAuth();
-  const isAdmin = hasAnyGroup(ADMIN_GROUPS);
+  const { user } = useAuth();
 
   return (
     <>
@@ -15,8 +16,8 @@ export default function Layout() {
           <span>AquaRecords</span>
         </div>
         <div className="user-info">
-          <span className="user-name">{user?.name}</span>
-          {isAdmin && <span className="role-badge admin">admin</span>}
+          <span className="user-name">{user?.name || user?.email}</span>
+          <span className="role-badge">SAWS</span>
           <a href="/.auth/logout" className="logout-btn" style={{ textDecoration: 'none' }}>
             Logout
           </a>
@@ -26,12 +27,8 @@ export default function Layout() {
       <nav className="app-nav">
         <NavLink to="/internal/queue">Queue</NavLink>
         <NavLink to="/internal/dashboard">Dashboard</NavLink>
-        {isAdmin && (
-          <>
-            <NavLink to="/admin/reports">Reports</NavLink>
-            <NavLink to="/admin/exemptions">Exemptions</NavLink>
-          </>
-        )}
+        <NavLink to="/admin/reports">Reports</NavLink>
+        <NavLink to="/admin/exemptions">Exemptions</NavLink>
       </nav>
 
       <main className="app-content">

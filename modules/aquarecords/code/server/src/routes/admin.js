@@ -1,12 +1,13 @@
 const router = require('express').Router();
 const { body, validationResult } = require('express-validator');
 const { authenticate } = require('../middleware/auth');
-const { authorize, GROUPS } = require('../middleware/authorize');
+// NOTE: Group-based authorization (SAWS-Records-Admin) is scaffolded in
+// ../middleware/authorize.js and will be wired here post-PoC once AD groups
+// are provisioned. During PoC all authenticated AD users have access.
 const { getDb, sql } = require('../config/database');
 
-// All admin routes require auth + admin group
+// All admin routes require Azure AD authentication
 router.use(authenticate);
-router.use(authorize([GROUPS.ADMIN]));
 
 /**
  * GET /api/internal/admin/reports

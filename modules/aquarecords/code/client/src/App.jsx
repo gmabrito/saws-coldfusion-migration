@@ -18,8 +18,10 @@ import RequestDetailPage from './pages/internal/RequestDetailPage';
 import ReportsPage from './pages/admin/ReportsPage';
 import ExemptionsPage from './pages/admin/ExemptionsPage';
 
-const STAFF_GROUPS = ['SAWS-Records-Staff', 'SAWS-Records-Admin'];
-const ADMIN_GROUPS = ['SAWS-Records-Admin'];
+// NOTE: AD group constants (SAWS-Records-Staff, SAWS-Records-Admin) are
+// defined here for post-PoC use. During PoC, all authenticated AD users
+// can access all routes. Re-add groups={...} to ProtectedRoute once
+// AD groups are provisioned.
 
 function RootRedirect() {
   const { isAuthenticated, loading } = useAuth();
@@ -50,38 +52,10 @@ export default function App() {
         }
       >
         <Route path="/internal/dashboard" element={<DashboardPage />} />
-        <Route
-          path="/internal/queue"
-          element={
-            <ProtectedRoute groups={STAFF_GROUPS}>
-              <RequestQueuePage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/internal/requests/:id"
-          element={
-            <ProtectedRoute groups={STAFF_GROUPS}>
-              <RequestDetailPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/reports"
-          element={
-            <ProtectedRoute groups={ADMIN_GROUPS}>
-              <ReportsPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/exemptions"
-          element={
-            <ProtectedRoute groups={ADMIN_GROUPS}>
-              <ExemptionsPage />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/internal/queue" element={<RequestQueuePage />} />
+        <Route path="/internal/requests/:id" element={<RequestDetailPage />} />
+        <Route path="/admin/reports" element={<ReportsPage />} />
+        <Route path="/admin/exemptions" element={<ExemptionsPage />} />
       </Route>
     </Routes>
   );

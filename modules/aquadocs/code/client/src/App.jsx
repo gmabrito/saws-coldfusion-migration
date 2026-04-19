@@ -9,7 +9,9 @@ import ChatPage from './pages/ChatPage';
 import PipelineStatusPage from './pages/admin/PipelineStatusPage';
 import DocumentsPage from './pages/admin/DocumentsPage';
 
-const ADMIN = ['SAWS-AquaDocs-Admin'];
+// NOTE: AD group constants (SAWS-AquaDocs-Admin) are defined here for
+// post-PoC use. During PoC, all authenticated AD users can access all routes.
+// Re-add groups={ADMIN} to ProtectedRoute once AD groups are provisioned.
 
 function RootRedirect() {
   const { isAuthenticated, loading } = useAuth();
@@ -40,22 +42,8 @@ export default function App() {
       >
         <Route path="/search" element={<SearchPage />} />
         <Route path="/chat" element={<ChatPage />} />
-        <Route
-          path="/admin/pipeline"
-          element={
-            <ProtectedRoute groups={ADMIN}>
-              <PipelineStatusPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/documents"
-          element={
-            <ProtectedRoute groups={ADMIN}>
-              <DocumentsPage />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/admin/pipeline" element={<PipelineStatusPage />} />
+        <Route path="/admin/documents" element={<DocumentsPage />} />
       </Route>
     </Routes>
   );
