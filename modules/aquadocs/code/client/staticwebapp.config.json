@@ -1,0 +1,15 @@
+{
+  "routes": [
+    { "route": "/public/*", "allowedRoles": ["anonymous", "authenticated"] },
+    { "route": "/api/public/*", "allowedRoles": ["anonymous", "authenticated"] },
+    { "route": "/*", "allowedRoles": ["authenticated"] }
+  ],
+  "responseOverrides": { "401": { "redirect": "/.auth/login/aad", "statusCode": 302 } },
+  "globalHeaders": {
+    "X-Frame-Options": "SAMEORIGIN",
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Content-Security-Policy": "default-src 'self'; connect-src 'self' https://*.saws.org https://*.search.windows.net; style-src 'self' 'unsafe-inline'; script-src 'self'"
+  },
+  "navigationFallback": { "rewrite": "/index.html" }
+}
