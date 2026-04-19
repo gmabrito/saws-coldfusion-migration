@@ -36,4 +36,20 @@ export const requestService = {
 
   upsertExemption: (data) =>
     axios.post('/api/internal/admin/exemptions', data).then((r) => r.data),
+
+  // AquaDocs Intelligence Layer — document search and AI chat
+  // These proxy through the AquaRecords server to the AquaDocs API.
+  // Use on the RequestDetailPage to find responsive documents and draft responses.
+  searchDocuments: (query, filters = {}, top = 10) =>
+    axios
+      .post('/api/internal/intelligence/search', { query, filters, top })
+      .then((r) => r.data),
+
+  chatWithDocuments: (messages) =>
+    axios
+      .post('/api/internal/intelligence/chat', { messages })
+      .then((r) => r.data),
+
+  getIntelligenceHealth: () =>
+    axios.get('/api/internal/intelligence/health').then((r) => r.data),
 };

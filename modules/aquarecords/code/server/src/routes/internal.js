@@ -2,6 +2,7 @@ const router = require('express').Router();
 const { body, query, param, validationResult } = require('express-validator');
 const { authenticate } = require('../middleware/auth');
 const RequestRepository = require('../repositories/requestRepository');
+const aquaDocs = require('../services/aquaDocsService');
 const eventBus = require('../events/eventBus');
 const EVENT_TYPES = require('../events/eventTypes');
 
@@ -165,6 +166,95 @@ router.get('/stats', async (req, res) => {
     console.error('[internal/stats GET]', err.message);
     res.status(500).json({ error: 'Failed to load stats' });
   }
+});
+
+// ── AquaDocs Intelligence Layer ──────────────────────────────────────────────
+// AquaRecords does not have its own document AI. All search and chat
+// capabilities are proxied to the AquaDocs API (shared intelligence layer).
+
+/**
+ * POST /api/internal/intelligence/search
+ * Search the SAWS document index via AquaDocs.
+ *
+ * Use case: Staff processing a TPIA request searches for documents
+ * responsive to the request description.
+ *
+ * Body: { query, filters?, top? }
+ * Returns: { results: [...], count: number }
+ */
+router.post(
+  '/intelligence/search',
+  [
+    body('query').notEmpty().trim().withMessage('query is required'),
+    body('top').optional().isInt({ min: 1, max: 50 }).toInt(),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+    const { query, filters = {}, top = 10 } = req.body;
+
+    try {
+      // Forward the caller's AD principal so AquaDocs logs the correct user
+      const userToken = req.headers['x-ms-client-principal'];
+      const results = await aquaDocs.searchDocuments(query, filters, top, userToken);
+
+      eventBus.publish(EVENT_TYPES.DOCUMENT_SEARCH, {
+        query,
+        resultCount: results.count,
+        filters,
+      }, req.user?.email).catch(() => {});
+
+      res.json(results);
+    } catch (err) {
+      console.error('[intelligence/search]', err.message);
+      res.status(500).json({ error: 'Document search failed' });
+    }
+  }
+);
+
+/**
+ * POST /api/internal/intelligence/chat
+ * AI Q&A against the SAWS document index via AquaDocs.
+ *
+ * Use cases:
+ *  - "Which documents are responsive to this request about X?"
+ *  - "Summarize the permitting requirements for Y"
+ *  - "Draft a response paragraph based on these documents"
+ *
+ * Body: { messages: [{role, content}, ...] }
+ * Returns: { answer: string, sources: [...] }
+ */
+router.post(
+  '/intelligence/chat',
+  [body('messages').isArray({ min: 1 }).withMessage('messages array is required')],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+    try {
+      const userToken = req.headers['x-ms-client-principal'];
+      const result = await aquaDocs.chatWithDocuments(req.body.messages, userToken);
+
+      eventBus.publish(EVENT_TYPES.DOCUMENT_CHAT, {
+        messageCount: req.body.messages.length,
+      }, req.user?.email).catch(() => {});
+
+      res.json(result);
+    } catch (err) {
+      console.error('[intelligence/chat]', err.message);
+      res.status(500).json({ error: 'Document chat failed' });
+    }
+  }
+);
+
+/**
+ * GET /api/internal/intelligence/health
+ * Check AquaDocs service availability.
+ */
+router.get('/intelligence/health', async (req, res) => {
+  const health = await aquaDocs.getServiceHealth();
+  res.status(health.status === 'ok' ? 200 : 503).json(health);
 });
 
 module.exports = router;

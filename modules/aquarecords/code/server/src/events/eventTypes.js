@@ -10,4 +10,7 @@ module.exports = {
   REQUEST_ASSIGNED: 'records.request.assigned',
   REQUEST_COMPLETED: 'records.request.completed',
   REQUEST_DENIED: 'records.request.denied',
+  // AquaDocs intelligence layer usage
+  DOCUMENT_SEARCH: 'records.intelligence.search',
+  DOCUMENT_CHAT: 'records.intelligence.chat',
 };

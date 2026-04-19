@@ -22,15 +22,20 @@ app.use('/api/public', require('./routes/public'));
 app.use('/api/internal/admin', require('./routes/admin'));
 app.use('/api/internal', require('./routes/internal'));
 
-// Health check
-app.get('/api/health', (req, res) =>
+// Health check — includes AquaDocs dependency status
+app.get('/api/health', async (req, res) => {
+  const aquaDocs = require('./services/aquaDocsService');
+  const aquaDocsHealth = await aquaDocs.getServiceHealth();
   res.json({
     status: 'ok',
     module: 'aquarecords',
     version: '1.0.0',
     timestamp: new Date().toISOString(),
-  })
-);
+    dependencies: {
+      aquadocs: aquaDocsHealth,
+    },
+  });
+});
 
 // 404 handler
 app.use((req, res) => {
