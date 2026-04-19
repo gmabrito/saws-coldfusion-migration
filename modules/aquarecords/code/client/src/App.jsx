@@ -1,10 +1,8 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth } from './components/AuthProvider';
 import Layout from './components/Layout';
-import PublicLayout from './components/PublicLayout';
 import ProtectedRoute from './components/ProtectedRoute';
 
-// Public pages
+// Public page components kept for post-PoC SAWS.org integration
 import LandingPage from './pages/public/LandingPage';
 import RequestFormPage from './pages/public/RequestFormPage';
 import RequestStatusPage from './pages/public/RequestStatusPage';
@@ -23,27 +21,18 @@ import ExemptionsPage from './pages/admin/ExemptionsPage';
 // can access all routes. Re-add groups={...} to ProtectedRoute once
 // AD groups are provisioned.
 
-function RootRedirect() {
-  const { isAuthenticated, loading } = useAuth();
-  if (loading) return <div className="loading">Loading...</div>;
-  return isAuthenticated
-    ? <Navigate to="/internal/queue" replace />
-    : <Navigate to="/public" replace />;
-}
+// PoC: All routes require AD authentication — unauthenticated users are
+// redirected to AAD login by staticwebapp.config.json before reaching React.
+// Post-PoC: restore PublicLayout + /public/* as anonymous routes for SAWS.org
+// citizens to submit and check TPIA requests without a SAWS AD account.
 
 export default function App() {
   return (
     <Routes>
-      <Route index element={<RootRedirect />} />
+      {/* Root always lands on queue for authenticated users */}
+      <Route index element={<Navigate to="/internal/queue" replace />} />
 
-      {/* Public routes — no auth required */}
-      <Route element={<PublicLayout />}>
-        <Route path="/public" element={<LandingPage />} />
-        <Route path="/public/request" element={<RequestFormPage />} />
-        <Route path="/public/status" element={<RequestStatusPage />} />
-      </Route>
-
-      {/* Internal routes — auth required */}
+      {/* All routes sit inside authenticated Layout — SWA edge enforces AD login */}
       <Route
         element={
           <ProtectedRoute>
@@ -51,11 +40,19 @@ export default function App() {
           </ProtectedRoute>
         }
       >
+        {/* Internal staff routes */}
         <Route path="/internal/dashboard" element={<DashboardPage />} />
         <Route path="/internal/queue" element={<RequestQueuePage />} />
         <Route path="/internal/requests/:id" element={<RequestDetailPage />} />
+
+        {/* Admin routes */}
         <Route path="/admin/reports" element={<ReportsPage />} />
         <Route path="/admin/exemptions" element={<ExemptionsPage />} />
+
+        {/* Post-PoC public pages — AD-gated during PoC, opens to SAWS.org citizens after */}
+        <Route path="/public" element={<LandingPage />} />
+        <Route path="/public/request" element={<RequestFormPage />} />
+        <Route path="/public/status" element={<RequestStatusPage />} />
       </Route>
     </Routes>
   );

@@ -1,12 +1,17 @@
 const router = require('express').Router();
 const { body, validationResult } = require('express-validator');
+const { authenticate } = require('../middleware/auth');
 const azureSearch = require('../services/azureSearchService');
 const eventBus = require('../events/eventBus');
 const EVENT_TYPES = require('../events/eventTypes');
 
+// PoC: All routes require Azure AD authentication.
+// Post-PoC: remove router.use(authenticate) to open public search to SAWS.org visitors.
+router.use(authenticate);
+
 /**
  * POST /api/public/search
- * Keyword-only search — no auth, no vector, limited metadata.
+ * Document search — PoC: AD auth required. Post-PoC: public keyword-only search.
  */
 router.post(
   '/search',

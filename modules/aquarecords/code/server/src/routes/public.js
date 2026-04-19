@@ -1,11 +1,17 @@
 const router = require('express').Router();
 const { body, param, validationResult } = require('express-validator');
+const { authenticate } = require('../middleware/auth');
 const RequestRepository = require('../repositories/requestRepository');
 const eventBus = require('../events/eventBus');
 const EVENT_TYPES = require('../events/eventTypes');
 const { notifySubmitter } = require('../services/notificationService');
 
 const requestRepo = new RequestRepository();
+
+// PoC: All routes require Azure AD authentication.
+// Post-PoC: remove router.use(authenticate) to open TPIA submission and
+// status check to citizens on SAWS.org without requiring a SAWS AD account.
+router.use(authenticate);
 
 /**
  * POST /api/public/requests

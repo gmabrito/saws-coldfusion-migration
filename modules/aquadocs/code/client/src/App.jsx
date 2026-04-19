@@ -1,8 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth } from './components/AuthProvider';
 import Layout from './components/Layout';
-import PublicLayout from './components/PublicLayout';
 import ProtectedRoute from './components/ProtectedRoute';
+// Public page components kept for post-PoC SAWS.org integration
 import PublicSearchPage from './pages/public/PublicSearchPage';
 import SearchPage from './pages/SearchPage';
 import ChatPage from './pages/ChatPage';
@@ -13,26 +12,17 @@ import DocumentsPage from './pages/admin/DocumentsPage';
 // post-PoC use. During PoC, all authenticated AD users can access all routes.
 // Re-add groups={ADMIN} to ProtectedRoute once AD groups are provisioned.
 
-function RootRedirect() {
-  const { isAuthenticated, loading } = useAuth();
-  if (loading) return <div className="loading">Loading...</div>;
-  return isAuthenticated
-    ? <Navigate to="/search" replace />
-    : <Navigate to="/public/search" replace />;
-}
+// PoC: All routes require AD authentication — unauthenticated users are
+// redirected to AAD login by staticwebapp.config.json before reaching React.
+// Post-PoC: restore PublicLayout + /public/search as anonymous route for SAWS.org.
 
 export default function App() {
   return (
     <Routes>
-      {/* Root redirect */}
-      <Route index element={<RootRedirect />} />
+      {/* Root always lands on search for authenticated users */}
+      <Route index element={<Navigate to="/search" replace />} />
 
-      {/* Public routes — no auth required */}
-      <Route element={<PublicLayout />}>
-        <Route path="/public/search" element={<PublicSearchPage />} />
-      </Route>
-
-      {/* Internal routes — authentication required */}
+      {/* All routes sit inside authenticated Layout — SWA edge enforces AD login */}
       <Route
         element={
           <ProtectedRoute>
@@ -44,6 +34,9 @@ export default function App() {
         <Route path="/chat" element={<ChatPage />} />
         <Route path="/admin/pipeline" element={<PipelineStatusPage />} />
         <Route path="/admin/documents" element={<DocumentsPage />} />
+
+        {/* Post-PoC public page — AD-gated during PoC, opens to SAWS.org after */}
+        <Route path="/public/search" element={<PublicSearchPage />} />
       </Route>
     </Routes>
   );

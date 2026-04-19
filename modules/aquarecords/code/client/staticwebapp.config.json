@@ -1,10 +1,11 @@
 {
+  "_comment": "PoC: All routes require Azure AD authentication. No anonymous access. Post-PoC: add /public/* and /api/public/* exceptions for citizen-facing TPIA submission pages on SAWS.org.",
   "routes": [
-    { "route": "/public/*", "allowedRoles": ["anonymous", "authenticated"] },
-    { "route": "/api/public/*", "allowedRoles": ["anonymous", "authenticated"] },
     { "route": "/*", "allowedRoles": ["authenticated"] }
   ],
-  "responseOverrides": { "401": { "redirect": "/.auth/login/aad", "statusCode": 302 } },
+  "responseOverrides": {
+    "401": { "redirect": "/.auth/login/aad", "statusCode": 302 }
+  },
   "globalHeaders": {
     "X-Frame-Options": "SAMEORIGIN",
     "X-Content-Type-Options": "nosniff",
