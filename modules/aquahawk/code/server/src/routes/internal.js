@@ -8,16 +8,29 @@ const EVENT_TYPES = require('../events/eventTypes');
 // All internal routes require authentication
 router.use(authenticate);
 
-const AQUADOCS_URL = process.env.AQUADOCS_API_URL || 'http://localhost:3030';
+const AQUADOCS_URL    = process.env.AQUADOCS_API_URL    || 'http://localhost:3030';
 const AQUARECORDS_URL = process.env.AQUARECORDS_API_URL || 'http://localhost:3031';
+const AQUAAI_URL      = process.env.AQUAAI_API_URL      || 'http://localhost:3033';
 
-// Static module registry
+// PoC suite: 4 AquaCore modules + portal + 6 ColdFusion migration targets
+// Internal: FHM, Flat Rate, Utility Maps, SITREP, Take Home Vehicles
+// External: Locates
 const MODULE_REGISTRY = [
-  { id: 'aquadocs',     name: 'AquaDocs',     description: 'Document AI & Knowledge Base',         port: 3030, url: AQUADOCS_URL,    status: 'unknown', version: '1.0.0' },
-  { id: 'aquarecords',  name: 'AquaRecords',  description: 'Open Records Request Management',       port: 3031, url: AQUARECORDS_URL, status: 'unknown', version: '1.0.0' },
-  { id: 'aquahawk',     name: 'AquaHawk',     description: 'Platform Operations Dashboard',         port: 3032, url: 'http://localhost:3032', status: 'ok', version: '1.0.0' },
-  { id: 'aquaai',       name: 'AquaAI',       description: 'Shared AI Services Layer',              port: 3033, url: 'http://localhost:3033', status: 'unknown', version: '1.0.0' },
-  { id: 'aquaanalytics',name: 'AquaAnalytics','description': 'Cross-Module Analytics & Reporting',  port: 3034, url: 'http://localhost:3034', status: 'unknown', version: '1.0.0' },
+  // AquaCore Intelligence Layer
+  { id: 'aquadocs',           name: 'AquaDocs',           description: 'Document AI & Knowledge Base — RAG search, voice Q&A, 50-doc pilot corpus',         port: 3030, url: AQUADOCS_URL,             category: 'aquacore',           version: '1.0.0' },
+  { id: 'aquarecords',        name: 'AquaRecords',        description: 'Open Records Request Management — TPIA intake, tracking, fulfillment',                port: 3031, url: AQUARECORDS_URL,          category: 'aquacore',           version: '1.0.0' },
+  { id: 'aquahawk',           name: 'AquaHawk',           description: 'Platform Operations Dashboard — health, events, costs across all PoC modules',        port: 3032, url: 'http://localhost:3032', category: 'aquacore',           version: '1.0.0' },
+  { id: 'aquaai',             name: 'AquaAI',             description: 'Shared AI Services Layer — centralized Azure OpenAI proxy + usage tracking',          port: 3033, url: AQUAAI_URL,              category: 'aquacore',           version: '1.0.0' },
+  // Portal
+  { id: 'portal',             name: 'EZ Link Portal',     description: 'SAWS intranet portal — entry point to all internal applications',                     port: 3000, url: 'http://localhost:3000', category: 'portal',             version: '1.0.0' },
+  // ColdFusion Migration — Internal
+  { id: 'fhm',                name: 'Fire Hydrant Meter', description: 'External billing — customers log hydrant meter usage; integrates with Infor for billing', port: 3001, url: 'http://localhost:3001', category: 'migration-external', version: '1.0.0' },
+  { id: 'flat-rate-sewer',    name: 'Flat Rate Sewer',    description: 'Internal billing — private-well customers billed for sewer; accounts, meters, assessments', port: 3020, url: 'http://localhost:3020', category: 'migration-internal', version: '1.0.0' },
+  { id: 'utility-maps',       name: 'Utility Maps',       description: 'Internal viewer — as-built PDF map catalog; 50-doc pilot; candidate for AquaDocs',   port: 3013, url: 'http://localhost:3013', category: 'migration-internal', version: '1.0.0' },
+  { id: 'sitrep',             name: 'SITREP',             description: 'Internal EOC — emergency situation reporting, notifications & response workflow',      port: 3040, url: 'http://localhost:3040', category: 'migration-internal', version: '1.0.0' },
+  { id: 'take-home-vehicles', name: 'Take Home Vehicles', description: 'Internal Fleet — employee overnight vehicle checkout/checkin with manager approval',  port: 3041, url: 'http://localhost:3041', category: 'migration-internal', version: '1.0.0' },
+  // ColdFusion Migration — External (public-facing)
+  { id: 'locates',            name: 'Locates',            description: 'External public — dig-safe locate requests; public submits, SAWS operations reviews', port: 3042, url: 'http://localhost:3042', category: 'migration-external', version: '1.0.0' },
 ];
 
 async function probeHealth(url, moduleName) {
@@ -37,16 +50,17 @@ async function probeHealth(url, moduleName) {
  * Polls AquaDocs and AquaRecords health endpoints, returns aggregated status.
  */
 router.get('/platform/health', async (req, res) => {
-  const [docsHealth, recordsHealth] = await Promise.all([
-    probeHealth(AQUADOCS_URL, 'AquaDocs'),
-    probeHealth(AQUARECORDS_URL, 'AquaRecords'),
-  ]);
+  // Probe AquaCore intelligence layer + all migration modules concurrently (2s timeout each)
+  const probeable = MODULE_REGISTRY.filter((m) => m.id !== 'aquahawk');
+  const results = await Promise.all(
+    probeable.map(async (mod) => {
+      const health = await probeHealth(mod.url, mod.name);
+      return [mod.id, { ...health, url: mod.url }];
+    })
+  );
 
-  const modules = {
-    aquadocs:    { ...docsHealth,    url: AQUADOCS_URL },
-    aquarecords: { ...recordsHealth, url: AQUARECORDS_URL },
-    aquahawk:    { status: 'ok', url: 'http://localhost:3032' },
-  };
+  const modules = Object.fromEntries(results);
+  modules.aquahawk = { status: 'ok', url: 'http://localhost:3032' };
 
   const allOk = Object.values(modules).every((m) => m.status === 'ok');
   const anyError = Object.values(modules).some((m) => m.status === 'error' || m.status === 'offline');

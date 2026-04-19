@@ -15,6 +15,7 @@ eventBus.setRepository(eventRepo);
 
 // NOTE: admin before internal to prevent route conflicts
 app.use('/api/internal/admin', require('./routes/admin'));
+app.use('/api/internal/costs', require('./routes/costs'));
 app.use('/api/internal', require('./routes/internal'));
 
 app.get('/api/health', (req, res) => {

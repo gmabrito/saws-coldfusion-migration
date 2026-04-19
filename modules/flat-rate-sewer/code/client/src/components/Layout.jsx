@@ -1,5 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from './AuthProvider';
+import { ThemeToggle } from '@saws/ui-shell';
 
 export default function Layout() {
   const { user, isAdmin, isUser, logout } = useAuth();
@@ -16,6 +17,7 @@ export default function Layout() {
         <div className="user-info">
           <span className="user-name">{user?.name}</span>
           <span className={`role-badge ${primaryRole}`}>{primaryRole}</span>
+          <ThemeToggle />
           <button className="logout-btn" onClick={logout}>Logout</button>
         </div>
       </header>

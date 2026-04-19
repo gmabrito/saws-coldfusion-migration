@@ -6,4 +6,3 @@
  * Group-based access: SAWS-AquaDocs-Admin, SAWS-AquaDocs-User
  */
 export { AuthProvider, useAuth } from '@saws/auth/client';
-export { default } from '@saws/auth/client';

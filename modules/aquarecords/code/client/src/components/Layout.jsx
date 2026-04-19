@@ -1,5 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from './AuthProvider';
+import { ThemeToggle } from '@saws/ui-shell';
 
 // NOTE: Post-PoC — restore group-conditional admin nav once AD groups are
 // provisioned (SAWS-Records-Admin, SAWS-Records-Staff). During PoC all
@@ -18,9 +19,8 @@ export default function Layout() {
         <div className="user-info">
           <span className="user-name">{user?.name || user?.email}</span>
           <span className="role-badge">SAWS</span>
-          <a href="/.auth/logout" className="logout-btn" style={{ textDecoration: 'none' }}>
-            Logout
-          </a>
+          <ThemeToggle />
+          <a href="/.auth/logout" className="logout-btn">Logout</a>
         </div>
       </header>
 

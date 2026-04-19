@@ -1,143 +1,170 @@
-import { useState, useEffect } from 'react';
-import PortalHeader from './components/PortalHeader';
-import PortalGrid from './components/PortalGrid';
+import { ThemeToggle } from '@saws/ui-shell';
 
-// Maps portal usernames to module auth emails
-const MOCK_USERS = {
-  admin: {
-    username: 'admin',
-    displayName: 'Admin User',
-    email: 'admin@saws.org',
-    roles: ['admin', 'ezlink', 'insider'],
-    apps: 'all',
+// ── PoC App Registry ─────────────────────────────────────────────────────────
+// All 10 apps in the suite. Client ports are the Vite dev server ports.
+// In production these become the Container Apps / Static Web App URLs.
+const APPS = [
+  // AquaCore Intelligence Layer
+  {
+    id: 'aquadocs',
+    name: 'AquaDocs',
+    icon: '📄',
+    desc: 'Document AI & Knowledge Base — semantic search, RAG chat, voice Q&A. Pilot: 146 SAWS documents.',
+    port: 3130,
+    category: 'aquacore',
   },
-  vendor: {
-    username: 'vendor',
-    displayName: 'Vendor User',
-    email: 'vendor@example.com',
-    roles: ['ezlink'],
-    apps: ['contracting-vendors', 'contracting-solicitations', 'my-profile'],
+  {
+    id: 'aquarecords',
+    name: 'AquaRecords',
+    icon: '📋',
+    desc: 'Open Records Request Management — TPIA/§552 intake, SLA tracking, exemption management.',
+    port: 3131,
+    category: 'aquacore',
   },
-  employee: {
-    username: 'employee',
-    displayName: 'SAWS Employee',
-    email: 'user@saws.org',
-    roles: ['ezlink', 'insider'],
-    apps: 'all',
+  {
+    id: 'aquahawk',
+    name: 'AquaHawk',
+    icon: '🦅',
+    desc: 'Platform Operations Dashboard — health monitoring, event log, Azure cost tracking across the full suite.',
+    port: 3132,
+    category: 'aquacore',
   },
-};
+  {
+    id: 'aquaai',
+    name: 'AquaAI',
+    icon: '🤖',
+    desc: 'Shared AI Services Layer — centralized Azure OpenAI proxy with per-module usage tracking and budget monitoring.',
+    port: 3133,
+    category: 'aquacore',
+  },
 
-// Auth API endpoint (Finance server handles auth for the prototype)
-const AUTH_API = 'http://localhost:3001/api/auth';
+  // ColdFusion Migration — Internal (SAWS staff only)
+  {
+    id: 'flat-rate-sewer',
+    name: 'Flat Rate Sewer',
+    icon: '🔧',
+    desc: 'Mini billing app for private-well customers — account management, meter tracking, annual assessments, audit log.',
+    port: 3120,
+    category: 'internal',
+  },
+  {
+    id: 'utility-maps',
+    name: 'Utility Maps',
+    icon: '🗺️',
+    desc: 'As-built PDF viewer with metadata search — 50-doc pilot. Strong candidate to merge into AquaDocs.',
+    port: 3113,
+    category: 'internal',
+  },
+  {
+    id: 'sitrep',
+    name: 'SITREP',
+    icon: '🚨',
+    desc: 'EOC situational reporting — log emergencies at SAWS facilities, trigger email notifications, track response actions.',
+    port: 3140,
+    category: 'internal',
+  },
+  {
+    id: 'take-home-vehicles',
+    name: 'Take Home Vehicles',
+    icon: '🚛',
+    desc: 'Fleet overnight vehicle checkout — employees request, managers approve, mileage and fuel logged on return.',
+    port: 3141,
+    category: 'internal',
+  },
+
+  // ColdFusion Migration — External (public / contractor-facing)
+  {
+    id: 'fhm',
+    name: 'Fire Hydrant Meter',
+    icon: '💧',
+    desc: 'Customer billing app — contractors log hydrant meter consumption; integrates with Infor. Finance admin view included.',
+    port: 3100,
+    category: 'external',
+  },
+  {
+    id: 'locates',
+    name: 'Locates',
+    icon: '📍',
+    desc: 'Public dig-safe request portal — anyone digging near SAWS infrastructure submits a locate; operations team reviews.',
+    port: 3142,
+    category: 'external',
+  },
+];
+
+const SECTIONS = [
+  {
+    key: 'aquacore',
+    label: 'AquaCore Intelligence Layer',
+    note: '4 Azure-backed modules',
+    accent: 'var(--saws-blue)',
+  },
+  {
+    key: 'internal',
+    label: 'ColdFusion Migration — Internal Apps',
+    note: 'SAWS staff · 4 modules',
+    accent: '#2d6a4f',
+  },
+  {
+    key: 'external',
+    label: 'ColdFusion Migration — External Apps',
+    note: 'Public / contractor-facing · 2 modules',
+    accent: '#6b3fa0',
+  },
+];
 
 export default function App() {
-  const [user, setUser] = useState(() => {
-    const stored = localStorage.getItem('portal_user');
-    return stored ? JSON.parse(stored) : null;
-  });
-  const [loginForm, setLoginForm] = useState({ username: '', password: '' });
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  // Keep token in localStorage for SSO
-  const token = localStorage.getItem('sso_token');
-
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-
-    const mockUser = MOCK_USERS[loginForm.username];
-    if (!mockUser) {
-      setError('Invalid credentials. Try: admin, vendor, or employee');
-      setLoading(false);
-      return;
-    }
-
-    try {
-      // Get a real JWT from the auth server
-      const res = await fetch(`${AUTH_API}/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: mockUser.email, password: 'sso' }),
-      });
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data.error || 'Login failed');
-
-      // Store SSO token and user info
-      localStorage.setItem('sso_token', data.token);
-      localStorage.setItem('sso_user', JSON.stringify(data.user));
-      localStorage.setItem('portal_user', JSON.stringify(mockUser));
-      setUser(mockUser);
-    } catch (err) {
-      // If auth server isn't running, still allow portal login
-      console.warn('Auth server not available, using local-only login:', err.message);
-      localStorage.setItem('portal_user', JSON.stringify(mockUser));
-      setUser(mockUser);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('sso_token');
-    localStorage.removeItem('sso_user');
-    localStorage.removeItem('portal_user');
-    setUser(null);
-    setLoginForm({ username: '', password: '' });
-  };
-
-  if (!user) {
-    return (
-      <div className="login-page">
-        <div className="login-card">
-          <div className="login-logo">
-            <img src="https://www.saws.org/wp-content/themes/theme-developer/assets/saws-logo-login.svg" alt="SAWS" crossOrigin="anonymous" onError={(e) => { e.target.style.display = 'none'; }} />
-            <h1>EZLink Applications</h1>
-          </div>
-          {error && <div className="alert alert-error">{error}</div>}
-          <form onSubmit={handleLogin}>
-            <div className="form-group">
-              <label htmlFor="username">Username</label>
-              <input
-                id="username"
-                type="text"
-                value={loginForm.username}
-                onChange={(e) => setLoginForm((p) => ({ ...p, username: e.target.value }))}
-                placeholder="Enter username"
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="password">Password</label>
-              <input
-                id="password"
-                type="password"
-                value={loginForm.password}
-                onChange={(e) => setLoginForm((p) => ({ ...p, password: e.target.value }))}
-                placeholder="Enter password"
-              />
-            </div>
-            <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
-              {loading ? 'Signing in...' : 'Sign In'}
-            </button>
-          </form>
-          <div className="login-hint">
-            <p><strong>Prototype Accounts:</strong></p>
-            <p><code>admin</code> - Full access to all apps</p>
-            <p><code>employee</code> - Internal SAWS employee</p>
-            <p><code>vendor</code> - External vendor (limited access)</p>
+  return (
+    <div className="launcher">
+      {/* ── Header ───────────────────────────────────────────────────── */}
+      <header className="launcher-header">
+        <div className="launcher-brand">
+          <div className="launcher-logo">SAWS</div>
+          <div>
+            <div className="launcher-title">AquaCore PoC Suite</div>
+            <div className="launcher-subtitle">San Antonio Water System — Application Launcher</div>
           </div>
         </div>
-      </div>
-    );
-  }
+        <div className="launcher-right">
+          <span className="poc-badge">PoC · Local Dev</span>
+          <ThemeToggle />
+        </div>
+      </header>
 
-  return (
-    <div className="portal">
-      <PortalHeader user={user} onLogout={handleLogout} />
-      <PortalGrid user={user} />
+      {/* ── App sections ─────────────────────────────────────────────── */}
+      <main className="launcher-main">
+        {SECTIONS.map(({ key, label, note, accent }) => {
+          const apps = APPS.filter((a) => a.category === key);
+          return (
+            <section key={key} className="app-section">
+              <div className="section-heading">
+                <span className="section-accent" style={{ background: accent }} />
+                <span className="section-label">{label}</span>
+                <span className="section-note">{note}</span>
+              </div>
+              <div className="app-grid">
+                {apps.map((app) => (
+                  <a
+                    key={app.id}
+                    href={`http://localhost:${app.port}`}
+                    className={`app-tile app-tile-${key}`}
+                  >
+                    <div className="app-icon">{app.icon}</div>
+                    <div className="app-info">
+                      <div className="app-name">{app.name}</div>
+                      <div className="app-desc">{app.desc}</div>
+                    </div>
+                    <div className="app-port">:{app.port}</div>
+                  </a>
+                ))}
+              </div>
+            </section>
+          );
+        })}
+      </main>
+
+      <footer className="launcher-footer">
+        AquaCore PoC · SAWS IS Digital · {new Date().getFullYear()}
+      </footer>
     </div>
   );
 }

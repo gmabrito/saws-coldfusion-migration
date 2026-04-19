@@ -1,0 +1,80 @@
+/* ===== SAWS SITREP — Module-Specific Overrides ===== */
+/* Thin overrides only. Core styles come from @saws/styles/saws.css */
+
+/* Severity badge overrides — map to saws.css badge classes */
+.badge-severity-critical { /* uses badge-error */ }
+.badge-severity-high     { /* uses badge-warn  */ }
+.badge-severity-medium   { /* uses badge-unknown */ }
+.badge-severity-low      { /* uses badge-ok    */ }
+
+/* SITREP status indicator */
+.sitrep-status-active {
+  color: var(--color-error, #d32f2f);
+  font-weight: 600;
+}
+.sitrep-status-monitoring {
+  color: var(--color-warn, #f28428);
+  font-weight: 600;
+}
+.sitrep-status-resolved {
+  color: var(--color-ok, #00A344);
+}
+
+/* Response log / timeline */
+.response-timeline {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-left: 3px solid var(--saws-border, #dee2e6);
+  padding-left: 20px;
+}
+.response-timeline li {
+  position: relative;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--saws-border, #dee2e6);
+}
+.response-timeline li:last-child {
+  border-bottom: none;
+}
+.response-timeline li::before {
+  content: '';
+  position: absolute;
+  left: -26px;
+  top: 16px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--saws-blue, #0078AE);
+  border: 2px solid #fff;
+}
+.timeline-meta {
+  font-size: 12px;
+  color: var(--saws-text-muted, #6c757d);
+  margin-bottom: 2px;
+}
+.timeline-action {
+  font-weight: 600;
+  font-size: 13px;
+}
+.timeline-note {
+  font-size: 13px;
+  color: var(--saws-text, #212529);
+  margin-top: 2px;
+}
+
+/* Notify teams checkboxes */
+.notify-teams-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px;
+}
+.notify-teams-grid label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: normal;
+  cursor: pointer;
+}
+.notify-teams-grid input[type='checkbox'] {
+  width: auto;
+}

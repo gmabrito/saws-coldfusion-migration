@@ -5,10 +5,11 @@ export default function ReportsPage() {
   const [reports, setReports] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isStub, setIsStub] = useState(false);
 
   useEffect(() => {
     requestService.getReports()
-      .then(setReports)
+      .then((data) => { setReports(data); setIsStub(!!data._stub); })
       .catch(() => setError('Failed to load reports.'))
       .finally(() => setLoading(false));
   }, []);
@@ -25,6 +26,10 @@ export default function ReportsPage() {
       <div className="page-header">
         <h1>SLA Performance Reports</h1>
       </div>
+
+      {isStub && (
+        <div className="alert alert-info">Showing mock SLA data — database not yet provisioned.</div>
+      )}
 
       <div className="dashboard-cards">
         <div className="stat-card">

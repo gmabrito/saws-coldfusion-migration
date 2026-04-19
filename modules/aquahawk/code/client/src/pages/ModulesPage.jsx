@@ -1,12 +1,23 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
+// PoC suite — AquaCore + Portal + 6 ColdFusion migration targets
 const MODULE_META = {
-  aquadocs:     { icon: '📄', description: 'Document AI & Knowledge Base — AI-powered search, RAG chat, voice interface for SAWS documents.' },
-  aquarecords:  { icon: '📋', description: 'Open Records Request Management — TPIA/open-records intake, tracking, and fulfillment.' },
-  aquahawk:     { icon: '🦅', description: 'Platform Operations Dashboard — Aggregates health and events from all AquaCore modules.' },
-  aquaai:       { icon: '🤖', description: 'Shared AI Services Layer — Centralized Azure OpenAI proxy with usage tracking by module.' },
-  aquaanalytics:{ icon: '📊', description: 'Cross-Module Analytics — Platform usage trends, query volumes, and operational reporting.' },
+  // AquaCore Intelligence Layer
+  aquadocs:           { icon: '📄', category: 'AquaCore', description: 'Document AI & Knowledge Base — AI-powered search, RAG chat, voice Q&A. Pilot corpus: 146 SAWS documents.' },
+  aquarecords:        { icon: '📋', category: 'AquaCore', description: 'Open Records Request Management — TPIA/open-records intake, SLA tracking, and Texas §552 exemption management.' },
+  aquahawk:           { icon: '🦅', category: 'AquaCore', description: 'Platform Operations Dashboard — health, events, costs, and module registry across the full PoC suite.' },
+  aquaai:             { icon: '🤖', category: 'AquaCore', description: 'Shared AI Services Layer — centralized Azure OpenAI proxy with per-module usage tracking and budget monitoring.' },
+  // Portal
+  portal:             { icon: '🏠', category: 'Portal',   description: 'EZ Link Portal — SAWS intranet home page; entry point to all internal applications.' },
+  // Internal migration targets
+  'flat-rate-sewer':  { icon: '🔧', category: 'Internal', description: 'Flat Rate Sewer — Mini billing app for private-well customers. Manages accounts, meters, annual assessments, and audit log.' },
+  'utility-maps':     { icon: '🗺️', category: 'Internal', description: 'Utility Maps — As-built PDF viewer with metadata search. 50-doc pilot. Strong candidate to become an AquaDocs collection.' },
+  sitrep:             { icon: '🚨', category: 'Internal', description: 'SITREP — EOC situational reporting app. Logs emergencies at SAWS facilities, triggers email notifications, tracks response actions.' },
+  'take-home-vehicles':{ icon: '🚛', category: 'Internal', description: 'Take Home Vehicles — Fleet overnight vehicle checkout. Employees request; managers approve; mileage/fuel logged on return.' },
+  // External migration targets
+  fhm:                { icon: '💧', category: 'External', description: 'Fire Hydrant Meter — Customer-facing billing app. Contractors log hydrant meter consumption; integrates with Infor for billing.' },
+  locates:            { icon: '📍', category: 'External', description: 'Locates — Public dig-safe request portal. Anyone digging near SAWS infrastructure submits a locate request; operations team reviews.' },
 };
 
 function StatusBadge({ status }) {
@@ -34,14 +45,14 @@ export default function ModulesPage() {
         setCheckedAt(res.data.checkedAt);
       })
       .catch(() => {
-        // Fallback mock
-        setModules([
-          { id: 'aquadocs',     name: 'AquaDocs',      version: '1.0.0', port: 3030, status: 'ok'      },
-          { id: 'aquarecords',  name: 'AquaRecords',   version: '1.0.0', port: 3031, status: 'ok'      },
-          { id: 'aquahawk',     name: 'AquaHawk',      version: '1.0.0', port: 3032, status: 'ok'      },
-          { id: 'aquaai',       name: 'AquaAI',        version: '1.0.0', port: 3033, status: 'unknown' },
-          { id: 'aquaanalytics',name: 'AquaAnalytics', version: '1.0.0', port: 3034, status: 'unknown' },
-        ]);
+        // Fallback — registry with unknown status (server unreachable)
+        setModules(Object.entries(MODULE_META).map(([id, meta]) => ({
+          id,
+          name: id.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+          version: '1.0.0',
+          status: ['aquadocs','aquarecords','aquahawk','aquaai','portal'].includes(id) ? 'ok' : 'unknown',
+          category: meta.category,
+        })));
       })
       .finally(() => setLoading(false));
   }

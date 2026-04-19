@@ -1,12 +1,23 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
+// PoC suite — AquaCore + Portal + 6 ColdFusion migration targets
 const MOCK_MODULES = [
-  { id: 'aquadocs',     name: 'AquaDocs',      desc: 'Document AI & Knowledge Base',      icon: '📄', status: 'ok',      port: 3030 },
-  { id: 'aquarecords',  name: 'AquaRecords',   desc: 'Open Records Request Management',    icon: '📋', status: 'ok',      port: 3031 },
-  { id: 'aquahawk',     name: 'AquaHawk',      desc: 'Platform Operations Dashboard',      icon: '🦅', status: 'ok',      port: 3032 },
-  { id: 'aquaai',       name: 'AquaAI',        desc: 'Shared AI Services Layer',           icon: '🤖', status: 'unknown', port: 3033 },
-  { id: 'aquaanalytics',name: 'AquaAnalytics', desc: 'Cross-Module Analytics & Reporting', icon: '📊', status: 'unknown', port: 3034 },
+  // AquaCore Intelligence Layer
+  { id: 'aquadocs',           name: 'AquaDocs',           desc: 'Document AI & Knowledge Base',              icon: '📄', status: 'ok',      port: 3030, category: 'AquaCore' },
+  { id: 'aquarecords',        name: 'AquaRecords',        desc: 'Open Records Request Management',            icon: '📋', status: 'ok',      port: 3031, category: 'AquaCore' },
+  { id: 'aquahawk',           name: 'AquaHawk',           desc: 'Platform Operations Dashboard',              icon: '🦅', status: 'ok',      port: 3032, category: 'AquaCore' },
+  { id: 'aquaai',             name: 'AquaAI',             desc: 'Shared AI Services Layer',                   icon: '🤖', status: 'unknown', port: 3033, category: 'AquaCore' },
+  // Portal
+  { id: 'portal',             name: 'EZ Link Portal',     desc: 'SAWS intranet portal',                       icon: '🏠', status: 'ok',      port: 3000, category: 'Portal'   },
+  // ColdFusion Migration — Internal
+  { id: 'flat-rate-sewer',    name: 'Flat Rate Sewer',    desc: 'Private-well sewer billing',                 icon: '🔧', status: 'unknown', port: 3020, category: 'Internal' },
+  { id: 'utility-maps',       name: 'Utility Maps',       desc: 'As-built PDF map viewer',                    icon: '🗺️', status: 'unknown', port: 3013, category: 'Internal' },
+  { id: 'sitrep',             name: 'SITREP',             desc: 'EOC emergency logging & notifications',       icon: '🚨', status: 'unknown', port: 3040, category: 'Internal' },
+  { id: 'take-home-vehicles', name: 'Take Home Vehicles', desc: 'Fleet vehicle overnight checkout',            icon: '🚛', status: 'unknown', port: 3041, category: 'Internal' },
+  // ColdFusion Migration — External
+  { id: 'fhm',                name: 'Fire Hydrant Meter', desc: 'Customer hydrant meter usage & billing',      icon: '💧', status: 'unknown', port: 3001, category: 'External' },
+  { id: 'locates',            name: 'Locates',            desc: 'Public dig-safe locate request submission',   icon: '📍', status: 'unknown', port: 3042, category: 'External' },
 ];
 
 const MOCK_EVENTS = [

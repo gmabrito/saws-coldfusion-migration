@@ -1,11 +1,11 @@
-import { Link, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from './AuthContext';
+import { ThemeToggle } from '@saws/ui-shell';
 
 const PORTAL_URL = 'http://localhost:3000';
 
 export default function Layout() {
   const { user, logout, isAdmin } = useAuth();
-  const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
@@ -13,26 +13,28 @@ export default function Layout() {
   };
 
   return (
-    <div className="app">
-      <header className="header">
-        <div className="header-content">
-          <a href={PORTAL_URL} className="portal-back" title="Back to EZ Link Portal">&#9664; Portal</a>
-          <Link to="/" className="logo">
-            SAWS Utility Maps
-          </Link>
-          {user && (
-            <nav className="nav">
-              <Link to="/maps">All Maps</Link>
-              {isAdmin && <Link to="/maps/new" className="nav-admin-link">Add Map</Link>}
-              <span className="user-name">{user.displayName || user.email}</span>
-              <button onClick={handleLogout} className="btn-link">Logout</button>
-            </nav>
-          )}
+    <>
+      <header className="app-header">
+        <div className="brand">
+          <a href={PORTAL_URL} className="portal-back">&#9664; Portal</a>
+          <span>Utility Maps</span>
+        </div>
+        <div className="user-info">
+          {user && <span className="user-name">{user.displayName || user.name || user.email}</span>}
+          <span className="role-badge">SAWS</span>
+          <ThemeToggle />
+          {user && <button onClick={handleLogout} className="logout-btn">Logout</button>}
         </div>
       </header>
-      <main className="main">
+
+      <nav className="app-nav">
+        <NavLink to="/maps">All Maps</NavLink>
+        {isAdmin && <NavLink to="/maps/new">Add Map</NavLink>}
+      </nav>
+
+      <main className="app-content">
         <Outlet />
       </main>
-    </div>
+    </>
   );
 }

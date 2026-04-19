@@ -32,6 +32,8 @@ export default function App() {
       >
         <Route path="/search" element={<SearchPage />} />
         <Route path="/chat" element={<ChatPage />} />
+        {/* Convenience redirect — nav uses /admin/pipeline but short form also works */}
+        <Route path="/pipeline" element={<Navigate to="/admin/pipeline" replace />} />
         <Route path="/admin/pipeline" element={<PipelineStatusPage />} />
         <Route path="/admin/documents" element={<DocumentsPage />} />
 

@@ -4,6 +4,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import DashboardPage from './pages/DashboardPage';
 import EventsPage from './pages/EventsPage';
 import ModulesPage from './pages/ModulesPage';
+import CostPage from './pages/CostPage';
 import ConfigPage from './pages/admin/ConfigPage';
 
 // NOTE: AD group constants (SAWS-AquaHawk-Admin, SAWS-AquaHawk-Viewer) are
@@ -27,6 +28,7 @@ export default function App() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/events" element={<EventsPage />} />
         <Route path="/modules" element={<ModulesPage />} />
+        <Route path="/costs" element={<CostPage />} />
         <Route path="/admin/config" element={<ConfigPage />} />
       </Route>
     </Routes>

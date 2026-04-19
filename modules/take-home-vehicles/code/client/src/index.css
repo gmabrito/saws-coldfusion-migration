@@ -1,0 +1,26 @@
+/* ===== Take Home Vehicles — module overrides ===== */
+
+/* Status badge extensions beyond saws.css base badge classes */
+.badge-warn    { background: #fff3cd; color: #856404; }
+.badge-ok      { background: #d4edda; color: #155724; }
+.badge-unknown { background: #e2e3e5; color: #383d41; }
+.badge-error   { background: #f8d7da; color: #721c24; }
+
+/* Approval queue card accent */
+.approval-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--saws-border);
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.approval-row:last-child {
+  border-bottom: none;
+}
+.approval-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}

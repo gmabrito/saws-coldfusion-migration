@@ -60,7 +60,29 @@ router.get('/reports', async (req, res) => {
     });
   } catch (err) {
     console.error('[admin/reports]', err.message);
-    res.status(500).json({ error: 'Failed to load reports' });
+    // Stub data when DB not yet provisioned (PoC mode)
+    res.json({
+      avg_response_days: 7.4,
+      on_time_pct: 91.2,
+      total_completed: 284,
+      total_denied: 23,
+      by_month: [
+        { month: '2025-11', count: 18 },
+        { month: '2025-12', count: 22 },
+        { month: '2026-01', count: 31 },
+        { month: '2026-02', count: 27 },
+        { month: '2026-03', count: 34 },
+        { month: '2026-04', count: 14 },
+      ],
+      top_exemptions: [
+        { code: '552.110', statutory_basis: 'Tex. Gov\'t Code §552.110', count: 41 },
+        { code: '552.101', statutory_basis: 'Tex. Gov\'t Code §552.101', count: 28 },
+        { code: '552.107', statutory_basis: 'Tex. Gov\'t Code §552.107', count: 16 },
+        { code: '552.104', statutory_basis: 'Tex. Gov\'t Code §552.104', count: 9 },
+      ],
+      _stub: true,
+      _message: 'DB not reachable — showing mock SLA data',
+    });
   }
 });
 
@@ -79,7 +101,19 @@ router.get('/exemptions', async (req, res) => {
     res.json({ exemptions: result.recordset });
   } catch (err) {
     console.error('[admin/exemptions GET]', err.message);
-    res.status(500).json({ error: 'Failed to load exemptions' });
+    // Stub data when DB not yet provisioned (PoC mode)
+    res.json({
+      exemptions: [
+        { id: 1, code: '552.101', statutory_basis: 'Tex. Gov\'t Code §552.101', description: 'Exception for information that is confidential by law, either constitutional, statutory, or by judicial decision.', is_active: true, created_at: '2026-01-15T00:00:00.000Z' },
+        { id: 2, code: '552.104', statutory_basis: 'Tex. Gov\'t Code §552.104', description: 'Exception for information related to litigation involving a governmental body.', is_active: true, created_at: '2026-01-15T00:00:00.000Z' },
+        { id: 3, code: '552.107', statutory_basis: 'Tex. Gov\'t Code §552.107', description: 'Exception for certain legal matters, including opinions of attorney general or governmental attorneys.', is_active: true, created_at: '2026-01-15T00:00:00.000Z' },
+        { id: 4, code: '552.108', statutory_basis: 'Tex. Gov\'t Code §552.108', description: 'Exception for certain law enforcement, corrections, and prosecutorial information.', is_active: true, created_at: '2026-01-15T00:00:00.000Z' },
+        { id: 5, code: '552.110', statutory_basis: 'Tex. Gov\'t Code §552.110', description: 'Exception for trade secrets and commercial or financial information from a third party where disclosure would cause substantial competitive harm.', is_active: true, created_at: '2026-01-15T00:00:00.000Z' },
+        { id: 6, code: '552.117', statutory_basis: 'Tex. Gov\'t Code §552.117', description: 'Exception for home address, telephone numbers, social security numbers, and family members of certain public servants.', is_active: true, created_at: '2026-01-15T00:00:00.000Z' },
+      ],
+      _stub: true,
+      _message: 'DB not reachable — showing mock exemptions',
+    });
   }
 });
 

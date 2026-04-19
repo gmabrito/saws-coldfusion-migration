@@ -4,6 +4,7 @@
   "private": true,
   "description": "ColdFusion migration bakeoff: BRD-driven vs code-driven approach comparison",
   "workspaces": [
+    "shared/auth",
     "shared/ui-shell",
     "modules/*/brd/client",
     "modules/*/brd/server",
