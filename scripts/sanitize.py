@@ -6,14 +6,12 @@ Scans source files for PII, credentials, and sensitive data, reports findings
 in a colour-coded table, and optionally replaces them with safe placeholder
 values. Writes a SANITIZATION_REPORT.md when finished.
 
-Usage:
-    python scripts/sanitize.py                          # scan repo root
-    python scripts/sanitize.py modules/fhm              # scan one module
-    python scripts/sanitize.py modules/fhm/brd/server/src/routes/contracts.js
-    python scripts/sanitize.py --dry-run                # report only, no edits
-    python scripts/sanitize.py --auto                   # apply all without prompting
-    python scripts/sanitize.py --risk high              # HIGH findings only
-    python scripts/sanitize.py --risk medium            # HIGH + MEDIUM findings
+Usage (run from the root of any project):
+    python sanitize.py                   # scan everything, prompt before changes
+    python sanitize.py --dry-run         # report only, no edits
+    python sanitize.py --auto            # apply all without prompting
+    python sanitize.py --risk high       # HIGH findings only
+    python sanitize.py --risk medium     # HIGH + MEDIUM findings
 """
 
 import argparse
@@ -427,20 +425,17 @@ def write_report(findings: list[Finding], replaced: int, scanned: int,
 def main():
     parser = argparse.ArgumentParser(
         prog='sanitize.py',
-        description='SAWS AquaCore — scan source files for PII and credentials',
+        description='Scan source files for PII and credentials, starting from the current directory.',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog='''\
-examples:
-  python scripts/sanitize.py                           scan repo root
-  python scripts/sanitize.py modules/fhm              scan one module
-  python scripts/sanitize.py --dry-run                report only, no edits
-  python scripts/sanitize.py --risk high              HIGH findings only
-  python scripts/sanitize.py --auto --risk high       auto-fix HIGH findings
+Run from the root of any project — no path argument needed:
+
+  python sanitize.py                    scan everything, prompt before changes
+  python sanitize.py --dry-run          report findings only, no edits
+  python sanitize.py --risk high        HIGH findings only
+  python sanitize.py --auto             apply all replacements without prompting
+  python sanitize.py --risk high --auto auto-fix HIGH findings only
         ''',
-    )
-    parser.add_argument(
-        'path', nargs='?', default='.',
-        help='File or directory to scan (default: current directory)',
     )
     parser.add_argument(
         '--dry-run', action='store_true',
@@ -460,10 +455,7 @@ examples:
     )
     args = parser.parse_args()
 
-    target = Path(args.path).resolve()
-    if not target.exists():
-        print(f'{RED}Error: path not found: {target}{RESET}')
-        sys.exit(1)
+    target = Path.cwd()
 
     risk_filter: set[str] = {'HIGH', 'MEDIUM', 'LOW'}
     if args.risk == 'high':
